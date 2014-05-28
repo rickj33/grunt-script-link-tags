@@ -10,116 +10,96 @@ module.exports = function (grunt) {
     var EOL = os.EOL; // end of line for operating system
 
     /**
-     * @constructor create a new instance of tags task
+     * compile a template with provided data
      */
-    function Tags (options) {
-        this.options = this.processOptions(options);
+    function processTemplate (template, data) {
+        return grunt.template.process(template, {data: data});
     }
-
-    /**
-     * process options, overriding defaults
-     */
-    Tags.prototype.processOptions = function (options) {
-        var processedOptions = {};
-
-        processedOptions.scriptTemplate = options.scriptTemplate || '<script src="{{ path }}"></script>';
-        processedOptions.linkTemplate = options.linkTemplate || '<link href="{{ path }}"/>';
-
-        processedOptions.openTag = options.openTag || '<!-- start auto template tags -->';
-        processedOptions.closeTag = options.closeTag || '<!-- start auto template tags -->';
-
-        /**
-         * @kludge should not have to hack around for templates
-         */
-        processedOptions.scriptTemplate = processedOptions.scriptTemplate.replace('{{', '<%=').replace('}}', '%>')
-        processedOptions.linkTemplate = processedOptions.linkTemplate.replace('{{', '<%=').replace('}}', '%>')
-
-        return processedOptions;
-    };
-
-    /**
-     * this is the main method that process and modified files, adding tags along the way!
-     *
-     * @method processFile
-     */
-    Tags.prototype.processFile = function (destFile, srcFiles) {
-        var that = this;
-        var tagsText = '';
-        var fileContents = grunt.file.read(destFile);
-        var filePath = path.dirname(destFile);
-
-        this.validateTemplateTags(destFile, fileContents);
-
-        srcFiles.forEach(function (srcFile) {
-            // calculate the src files path relative to destination path
-            var relativePath = path.relative(filePath, srcFile);
-            tagsText += that.generateTag(relativePath);
-        });
-
-        var res = this.addTags(fileContents, tagsText);
-
-        grunt.file.write(destFile, res);
-    };
-
-    /**
-     * validate the given file contents contain valid template tags
-     */
-    Tags.prototype.validateTemplateTags = function (fileName, fileContents) {
-        // get locations of template tags
-        // used to verify that the destination file contains valid template tags
-        var openTagLocation = fileContents.indexOf(this.options.openTag);
-        var closeTagLocation = fileContents.indexOf(this.options.closeTag);
-
-        // verify template tags exist and in logic order
-        if (closeTagLocation < openTagLocation || openTagLocation === -1 || closeTagLocation === -1) {
-            grunt.fail.fatal('invalid template tags in ' + fileName);
-        }
-    };
 
     /**
      * generate a template tag for provided file
      */
-    Tags.prototype.generateTag = function (relativePath) {
+    function generateTag (relativePath, templates) {
         var ext = path.extname(relativePath);
-        var data = {
-            data: {
-                path: relativePath
-            }
-        };
 
         if (ext === '.js') {
-            return grunt.template.process(this.options.scriptTemplate, data) + EOL;
+            return processTemplate(templates.scriptTemplate, {path: relativePath}) + EOL;
         } else if (ext === '.css') {
-            return grunt.template.process(this.options.linkTemplate, data) + EOL;
+            return processTemplate(templates.linkTemplate, {path: relativePath}) + EOL;
         } else {
             return ''
         }
-    };
-
-    /**
-     * add the tags to the correct part of the destination file
-     */
-    Tags.prototype.addTags = function (fileContents, tagsText) {
-        var beginning = fileContents.split(this.options.openTag)[0];
-        var end = fileContents.split(this.options.closeTag)[1];
-
-        return beginning +
-               this.options.openTag + EOL +
-               tagsText +
-               this.options.closeTag +
-               end;
-    };
+    }
 
     //
-    // register tags grunt task
+    // tags grunt task
     //
     grunt.registerMultiTask('tags', 'Dynamically add script and link tags to html file', function () {
         var that = this;
-        var tags = new Tags(that.options());
+        var options = that.options();
+        var scriptTemplate = options.scriptTemplate || '<script src="{{ path }}"></script>';
+        var linkTemplate = options.linkTemplate || '<link href="{{ path }}"/>';
+        var openTag = options.openTag || '<!-- start auto template tags -->';
+        var closeTag = options.closeTag || '<!-- start auto template tags -->';
+
+        /**
+         * @kludge should not have to hack around for templates
+         */
+        scriptTemplate = scriptTemplate.replace('{{', '<%=').replace('}}', '%>')
+        linkTemplate = linkTemplate.replace('{{', '<%=').replace('}}', '%>')
+
+        function modifyFile(destFile, srcFiles) {
+
+            // grunt.file.read provides check that destFile actually exists
+            var destFileContents = grunt.file.read(destFile);
+
+            // get locations of template tags
+            // used to verify that the destination file contains valid template tags
+            var openTagLocation = destFileContents.indexOf(openTag);
+            var closeTagLocation = openTagLocation + 1 + destFileContents.substring(openTagLocation).indexOf(closeTag);
+
+            // verify template tags exist and in logic order
+            if (closeTagLocation < openTagLocation || openTagLocation === -1 || closeTagLocation === -1) {
+                grunt.fail.fatal('invalid template tags in ' + destFile);
+            }
+
+            // store the directory path for the destination file
+            // this is used to calculate relative location for srcFiles
+            var base = path.dirname(destFile);
+
+            // store string to insert between template comments
+            var textToAdd = '';
+
+            // for each matched file, add a script tag
+            srcFiles.forEach(function (srcFile) {
+                var relativePath = path.relative(base, srcFile);
+                var tag = generateTag(relativePath, {
+                    scriptTemplate: scriptTemplate,
+                    linkTemplate: linkTemplate
+                });
+
+                textToAdd += tag;
+            });
+
+            // split by opening tag and grab all content before it
+            var parts = destFileContents.split(openTag);
+            var beginning = parts[0];
+
+            // split by closing tag, storing all content after it
+            var end = parts[1].split(closeTag)[1];
+
+            var finalFile = beginning +
+                openTag + EOL +
+                textToAdd +
+                closeTag +
+                end;
+
+            grunt.file.write(destFile, finalFile);
+        }
 
         // for each destination file
         this.files.forEach(function (file) {
-            tags.processFile(file.dest, file.src);
+            modifyFile(file.dest, file.src);
         });
     });
 };
