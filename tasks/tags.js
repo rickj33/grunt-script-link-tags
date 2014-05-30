@@ -86,7 +86,7 @@ module.exports = function (grunt) {
             var beginning = parts[0];
 
             // split by closing tag, storing all content after it
-            var end = parts[1].split(closeTag)[1];
+            var end = parts[1].substring(parts[1].indexOf(closeTag) + closeTag.length);
 
             var finalFile = beginning +
                 openTag + EOL +
