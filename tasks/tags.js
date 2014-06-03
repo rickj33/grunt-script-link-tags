@@ -21,11 +21,13 @@ module.exports = function (grunt) {
      */
     function generateTag (relativePath, templates) {
         var ext = path.extname(relativePath);
+        // replace backslashes with forward slashes
+        var path = relativePath.replace(/\\/g, "/"); 
 
         if (ext === '.js') {
-            return processTemplate(templates.scriptTemplate, {path: relativePath}) + EOL;
+            return processTemplate(templates.scriptTemplate, {path: path}) + EOL;
         } else if (ext === '.css') {
-            return processTemplate(templates.linkTemplate, {path: relativePath}) + EOL;
+            return processTemplate(templates.linkTemplate, {path: path}) + EOL;
         } else {
             return ''
         }
