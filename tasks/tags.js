@@ -8,6 +8,7 @@ module.exports = function (grunt) {
     var path = require('path');
     var os = require('os');
     var EOL = os.EOL; // end of line for operating system
+    var _ = require('lodash');
 
     /**
      * Normalize the files paths for window (\) and unix (/)
@@ -140,6 +141,45 @@ module.exports = function (grunt) {
         }
     };
 
+    Tags.prototype.getAllReferences = function(configuration)
+    {
+       /* console.log('config passed ' + JSON.stringify(configuration))
+          console.log('external ref' + configuration.externalRefs);  */
+          var externalReferences = configuration.externalRefs ? configuration.externalRefs :  [];
+        if(!_.isArray(externalReferences)){
+            var temp = [];
+            temp.push(externalReferences);
+            externalReferences - temp;
+        }
+
+        console.log('configuration source ' );
+          console.log( configuration.src);   
+
+          var sourceRefes = [];
+        configuration.src.forEach(function(file){
+             var ext = path.extname(relativePath);
+        var data = {
+            data: {
+                path: relativePath
+            }
+        };
+
+
+        console.log('file ext  ' + ext);
+        console.log('path to file ' + relativePath);
+      //  console.log(file);    
+        sourceRefes.push(file);
+        });
+        
+      var result = _.union(sourceRefes, externalReferences);
+        return result;
+        
+       //  return   configuration;
+        
+        
+
+    };
+
     /**
      * add the tags to the correct part of the destination file
      */
@@ -162,9 +202,20 @@ module.exports = function (grunt) {
         var that = this;
         var tags = new Tags(that.options());
 
-        console.log(this.files);
-        // for each destination file
+        console.log('options ')
+       console.log( that.options());
+       console.log('=========== ' );
+
+         console.log('this.files ')
+       console.log( this.files);
+       console.log('=========== ' );
+
+ 
         this.files.forEach(function (file) {
+
+ var referencesToAdd = tags.getAllReferences(file);
+  console.log('file references ' +referencesToAdd);
+
         	file.dest.forEach(function(destFile){
             tags.processFile(destFile, file.src);
         	});
