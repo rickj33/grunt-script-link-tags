@@ -154,8 +154,6 @@ module.exports = function(grunt) {
             externalReferences - temp;
         }
 
-        console.log('configuration source ');
-        console.log(configuration.src);
 
         var sourceRefes = [];
         //update the path.
@@ -178,7 +176,6 @@ module.exports = function(grunt) {
     Tags.prototype.addTags = function(fileContents, tagsText) {
         var beginning = fileContents.split(this.options.openTag)[0];
         var end = fileContents.split(this.options.closeTag)[1];
-        console.log(tagsText);
 
         return beginning +
             this.options.openTag + EOL +
@@ -198,9 +195,6 @@ module.exports = function(grunt) {
         this.files.forEach(function(file) {
 
             var referencesToAdd = tags.getAllReferences(file);
-            console.log('file references ');
-            console.log(referencesToAdd);
-            console.log('=========== ');
 
             file.dest.forEach(function(destFile) {
                 tags.processFile(destFile, referencesToAdd);
