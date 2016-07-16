@@ -1,6 +1,12 @@
-# grunt-script-link-tags
+# grunt-script-link-tags [![Build Status](https://travis-ci.org/andrewjmead/grunt-script-link-tags.png)](https://travis-ci.org/andrewjmead/grunt-script-link-tags)
 
 > Auto-generate `<script>` and `<link>` tags for your HTML files.
+
+## Community
+
+If you have any problems setting up or using `grunt-script-link-tags`, open an issue. I would be happy to help.
+
+**This is an active repository** that takes user suggestions, feeback and pull requests seriously. Happy grunting!
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
@@ -35,7 +41,7 @@ In your project's Gruntfile, add a section named `tags` to the data object passe
 		    }
 		}
 	});
-	
+
 
 ### Options
 
@@ -116,21 +122,25 @@ You can override all default options. In the following multi-task, we have two t
 		            closeTag: '<!-- end css template tags -->'
 		        },
 		        src: [
-		            'site/css/**/*.js'
+		            'site/css/**/*.css'
 		        ],
 		        dest: 'site/index.html'
 		    }
 		}
 	});
 
+## Run Tests
+
+    > npm install
+    > npm test
+
 ## Contributing
-In lieu of a formal 	, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Author
-
-Andrew Mead
-
-https://www.github.com/andrewjmead
+In lieu of a formal guide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality.
 
 ## Release History
-_(Nothing yet)_
+ * 2014-15-10   v1.0.0   All added tags now match indentation of start tag thanks to [rahilwazir](https://github.com/rahilwazir). Added type/rel attributes to script/link defaults.
+ * 2013-30-11   v0.0.5   First version!
+
+---
+
+Task submitted by [Andrew Mead](http://www.andrewjmead.com)

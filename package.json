@@ -1,15 +1,68 @@
 {
-  "name": "grunt-script-link-tags",
-  "version": "0.0.5",
+  "_args": [
+    [
+      {
+        "name": "grunt-script-link-tags",
+        "raw": "grunt-script-link-tags",
+        "rawSpec": "",
+        "scope": null,
+        "spec": "latest",
+        "type": "tag"
+      },
+      "E:\\code\\Factlook\\Factlook.com"
+    ]
+  ],
+  "_from": "grunt-script-link-tags@latest",
+  "_id": "grunt-script-link-tags@1.0.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/grunt-script-link-tags",
+  "_nodeVersion": "0.10.32",
+  "_npmUser": {
+    "email": "andrewjosephmead@gmail.com",
+    "name": "andrewjmead"
+  },
+  "_npmVersion": "2.1.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "grunt-script-link-tags",
+    "raw": "grunt-script-link-tags",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#DEV:/"
+  ],
+  "_resolved": "https://registry.npmjs.org/grunt-script-link-tags/-/grunt-script-link-tags-1.0.2.tgz",
+  "_shasum": "dd041ba67789452a774479c9e2c3ef7fe8be3e23",
+  "_shrinkwrap": null,
+  "_spec": "grunt-script-link-tags",
+  "_where": "E:\\code\\Factlook\\Factlook.com",
+  "author": {
+    "name": "Andrew Mead"
+  },
+  "bugs": {
+    "url": "https://github.com/andrewjmead/grunt-script-link-tags/issues"
+  },
+  "dependencies": {
+   "lodash": "^4.13.1"
+ },
   "description": "Automatically generate script tags and link tags for your HTML",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-nodeunit": "^1.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/andrewjmead/grunt-script-link-tags.git"
+  "directories": {},
+  "dist": {
+    "shasum": "dd041ba67789452a774479c9e2c3ef7fe8be3e23",
+    "tarball": "https://registry.npmjs.org/grunt-script-link-tags/-/grunt-script-link-tags-1.0.2.tgz"
   },
+  "gitHead": "8cc143c54008b742f1a9a56a5689f77265e25e60",
+  "homepage": "https://github.com/andrewjmead/grunt-script-link-tags",
   "keywords": [
     "grunt",
     "script",
@@ -20,19 +73,23 @@
     "generate",
     "gruntplugin"
   ],
-  "author": {
-    "name": "Andrew Mead"
-  },
   "license": "BSD",
-  "bugs": {
-    "url": "https://github.com/andrewjmead/grunt-script-link-tags/issues"
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "andrewjosephmead@gmail.com",
+      "name": "andrewjmead"
+    }
+  ],
+  "name": "grunt-script-link-tags",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andrewjmead/grunt-script-link-tags.git"
   },
-  "devDependencies": {
-    "grunt": "~0.4.2"
+  "scripts": {
+    "test": "grunt test"
   },
-  "readme": "# grunt-script-link-tags\n\n> Auto-generate `<script>` and `<link>` tags for your HTML files.\n\n## Getting Started\nThis plugin requires Grunt `~0.4.0`\n\nIf you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:\n\n\tnpm install grunt-script-link-tags --save-dev\n\nOnce the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:\n\n\tgrunt.loadNpmTasks('grunt-script-link-tags');\n\n## The \"tags\" task\n\n### Overview\nIn your project's Gruntfile, add a section named `tags` to the data object passed into `grunt.initConfig()`.\n\n\tgrunt.initConfig({\n\t\ttags: {\n\t\t    build: {\n\t\t        options: {\n\t\t\t        scriptTemplate: '<script src=\"{{ path }}\"></script>',\n\t\t\t\t\tlinkTemplate: '<link href=\"{{ path }}\"/>',\n\t\t            openTag: '<!-- start template tags -->',\n\t\t            closeTag: '<!-- end template tags -->'\n\t\t        },\n\t\t        src: [\n\t\t            'site/js/**/*.js',\n\t\t            '!site/js/vendor/**/*.js'\n\t\t        ],\n\t\t        dest: 'site/index.html'\n\t\t    }\n\t\t}\n\t});\n\t\n\n### Options\n\n#### options.scriptTemplate\n\nType: `String`\n\nDefault value: `<script src=\"{{ path }}\"></script>`\n\nIf a matched file has a `.js` extension, it will compile the `options.scriptTemplate` template with the file path.\n\n#### options.linkTemplate\n\nType: `String`\n\nDefault value: `<link href=\"{{ path }}\"/>`\n\nIf a matched file has a `.css` extension, it will compile the `options.linkTemplate` template with the file path.\n\n#### options.openTag\nType: `String`\n\nDefault value: `<!-- start auto template tags -->`\n\nSpecify where in the destination file to start adding script and link tags.\n\n#### options.closeTag\nType: `String`\n\nDefault value: `<!-- end auto template tags -->`\n\nSpecify where in the destination file to stop adding script and link tags.\n\n### Usage Examples\n\n#### Default Options\n\nThe following is the default configuration. `tags` will generate script and link tags for all matching `src` files and using the default `scriptTemplate` and `linkTemplate` defined above. it will then add these tags to `site/index.html` between the default `openTag` and `closeTag`.\n\n\tgrunt.initConfig({\n\t\ttags: {\n\t\t    build: {\n\t\t        src: [\n\t\t            'site/js/**/*.js',\n\t\t            '!site/js/vendor/**/*.js'\n\t\t        ],\n\t\t        dest: 'site/index.html'\n\t\t    }\n\t\t}\n\t});\n\n#### Custom Options\n\nYou can override all default options. In the following multi-task, we have two tasks, one for compiling scripts `buildScripts`, and another for compiling link tags, `buildLinks`.\n\n`buildScripts` overrides `scriptTemplate`, letting your define you own template with extra attributes. It also override `openTag` and `closeTag`, specifying that they are for scripts.\n\n`buildLinks` overrides `linkTemplate` to add a `media` attribute to it's link tags. Like `buildScripts`, it overrides `openTag` and `closeTag` to specify it's auto-generated css.\n\n\tgrunt.initConfig({\n\t\ttags: {\n\t\t    buildScripts: {\n\t\t        options: {\n\t\t\t        scriptTemplate: '<script type=\"text/javascript\" src=\"{{ path }}\"></script>',\n\t\t            openTag: '<!-- start script template tags -->',\n\t\t            closeTag: '<!-- end script template tags -->'\n\t\t        },\n\t\t        src: [\n\t\t            'site/js/**/*.js',\n\t\t            '!site/js/vendor/**/*.js'\n\t\t        ],\n\t\t        dest: 'site/index.html'\n\t\t    },\n\t\t    buildLinks: {\n\t\t        options: {\n\t\t\t\t\tlinkTemplate: '<link rel=\"stylesheet\" type=\"text/css\" href=\"{{ path }}\" media=\"screen\"/>',\n\t\t            openTag: '<!-- start css template tags -->',\n\t\t            closeTag: '<!-- end css template tags -->'\n\t\t        },\n\t\t        src: [\n\t\t            'site/css/**/*.js'\n\t\t        ],\n\t\t        dest: 'site/index.html'\n\t\t    }\n\t\t}\n\t});\n\n## Contributing\nIn lieu of a formal \t, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).\n\n## Author\n\nAndrew Mead\n\nhttps://www.github.com/andrewjmead\n\n## Release History\n_(Nothing yet)_\n",
-  "readmeFilename": "readme.md",
-  "homepage": "https://github.com/andrewjmead/grunt-script-link-tags",
-  "_id": "grunt-script-link-tags@0.0.5",
-  "_from": "grunt-script-link-tags@"
+  "version": "1.0.2"
 }
