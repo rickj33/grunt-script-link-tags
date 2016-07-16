@@ -4,7 +4,7 @@
 //
 'use strict';
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
     var path = require('path');
     var os = require('os');
     var EOL = os.EOL; // end of line for operating system
@@ -16,21 +16,21 @@ module.exports = function (grunt) {
      * @function normalizePaths
      * @return {String} 
      */
-     function normalizePaths (path) {
+    function normalizePaths(path) {
         return path.replace(/\\/g, '/');
-     }
+    }
 
     /**
      * @constructor create a new instance of tags task
      */
-    function Tags (options) {
+    function Tags(options) {
         this.options = this.processOptions(options);
     }
 
     /**
      * process options, overriding defaults
      */
-    Tags.prototype.processOptions = function (options) {
+    Tags.prototype.processOptions = function(options) {
         var processedOptions = {};
 
         processedOptions.scriptTemplate = options.scriptTemplate || '<script type="text/javascript" src="{{ path }}"></script>';
@@ -68,10 +68,9 @@ module.exports = function (grunt) {
      *
      * @method processFile
      */
-    Tags.prototype.processFile = function (destFile, srcFiles) {
+    Tags.prototype.processFile = function(destFile, srcFilesObject) {
 
-       
-        
+
 
         var that = this;
         var tagsText = '';
@@ -91,11 +90,18 @@ module.exports = function (grunt) {
 
         this.validateTemplateTags(destFile, fileContents);
 
-        srcFiles.forEach(function (srcFile) {
+        //handle external refs first , since they make take longer, and also they will load in parallel.
+        srcFilesObject.externalReferences.forEach(function(srcFile) {
+            tagsText += that.options.indent + that.generateTag(srcFile);
+        });
+
+        srcFilesObject.localRefs.forEach(function(srcFile) {
             // calculate the src files path relative to destination path
             var relativePath = normalizePaths(path.relative(filePath, srcFile));
             tagsText += that.options.indent + that.generateTag(relativePath);
         });
+
+
 
         var res = this.addTags(fileContents, tagsText);
 
@@ -105,7 +111,7 @@ module.exports = function (grunt) {
     /**
      * validate the given file contents contain valid template tags
      */
-    Tags.prototype.validateTemplateTags = function (fileName, fileContents) {
+    Tags.prototype.validateTemplateTags = function(fileName, fileContents) {
         // get locations of template tags
         // used to verify that the destination file contains valid template tags
         var openTagLocation = fileContents.indexOf(this.options.openTag);
@@ -117,20 +123,17 @@ module.exports = function (grunt) {
         }
     };
 
+
     /**
      * generate a template tag for provided file
      */
-    Tags.prototype.generateTag = function (relativePath) {
-        var ext = path.extname(relativePath);
+    Tags.prototype.generateTag = function(srcFile) {
+        var ext = path.extname(srcFile);
         var data = {
             data: {
-                path: relativePath
+                path: srcFile
             }
         };
-
-
-        console.log('file ext  ' + ext);
-        console.log('path to file ' + relativePath);
 
         if (ext === '.js') {
             return grunt.template.process(this.options.scriptTemplate, data) + EOL;
@@ -141,84 +144,67 @@ module.exports = function (grunt) {
         }
     };
 
-    Tags.prototype.getAllReferences = function(configuration)
-    {
-       /* console.log('config passed ' + JSON.stringify(configuration))
-          console.log('external ref' + configuration.externalRefs);  */
-          var externalReferences = configuration.externalRefs ? configuration.externalRefs :  [];
-        if(!_.isArray(externalReferences)){
+
+    Tags.prototype.getAllReferences = function(configuration) {
+
+        var externalReferences = configuration.externalRefs ? configuration.externalRefs : [];
+        if (!_.isArray(externalReferences)) {
             var temp = [];
             temp.push(externalReferences);
             externalReferences - temp;
         }
 
-        console.log('configuration source ' );
-          console.log( configuration.src);   
+        console.log('configuration source ');
+        console.log(configuration.src);
 
-          var sourceRefes = [];
-        configuration.src.forEach(function(file){
-             var ext = path.extname(relativePath);
-        var data = {
-            data: {
-                path: relativePath
-            }
-        };
+        var sourceRefes = [];
+        //update the path.
+        configuration.src.forEach(function(file) {
 
-
-        console.log('file ext  ' + ext);
-        console.log('path to file ' + relativePath);
-      //  console.log(file);    
-        sourceRefes.push(file);
+           
+            sourceRefes.push(file);
         });
-        
-      var result = _.union(sourceRefes, externalReferences);
-        return result;
-        
-       //  return   configuration;
-        
-        
 
+        var result = {
+            localRefs: sourceRefes,
+            externalReferences: externalReferences
+        };
+        return result;
     };
 
     /**
      * add the tags to the correct part of the destination file
      */
-    Tags.prototype.addTags = function (fileContents, tagsText) {
+    Tags.prototype.addTags = function(fileContents, tagsText) {
         var beginning = fileContents.split(this.options.openTag)[0];
         var end = fileContents.split(this.options.closeTag)[1];
         console.log(tagsText);
 
         return beginning +
-               this.options.openTag + EOL +
-               tagsText +
-               this.options.indent + this.options.closeTag +
-               end;
+            this.options.openTag + EOL +
+            tagsText +
+            this.options.indent + this.options.closeTag +
+            end;
     };
 
     //
     // register tags grunt task
     //
-    grunt.registerMultiTask('tags', 'Dynamically add script and link tags to html file', function () {
+    grunt.registerMultiTask('tags', 'Dynamically add script and link tags to html file', function() {
         var that = this;
         var tags = new Tags(that.options());
 
-        console.log('options ')
-       console.log( that.options());
-       console.log('=========== ' );
 
-         console.log('this.files ')
-       console.log( this.files);
-       console.log('=========== ' );
+        this.files.forEach(function(file) {
 
- 
-        this.files.forEach(function (file) {
+            var referencesToAdd = tags.getAllReferences(file);
+            console.log('file references ');
+            console.log(referencesToAdd);
+            console.log('=========== ');
 
- var referencesToAdd = tags.getAllReferences(file);
-  console.log('file references ' +referencesToAdd);
-
-        	file.dest.forEach(function(destFile){
-            tags.processFile(destFile, file.src);
-        	});
+            file.dest.forEach(function(destFile) {
+                tags.processFile(destFile, referencesToAdd);
+            });
         });
     });
 };
